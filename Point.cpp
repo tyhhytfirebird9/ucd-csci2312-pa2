@@ -5,113 +5,111 @@
 #include <cmath>
 #include <cassert>
 
-using namespace Clustering;
 
 // Default constructor
+namespace Clustering {
+    Point::Point() : Point(2) { }
 
-Point::Point() : Point(2) {}
+    Point::Point(int dimensions) {
+        dim = dimensions;
+        values = new double[dimensions];
+        for (int i = 0; i < dimensions; i++)
+            values[i] = 0;
+    }
 
-Point::Point(int dimensions) {
-    dim = dimensions;
-    values = new double[dimensions];
-    for (int i = 0; i < dimensions; i++)
-        values[i] = 0;
-}
+    Point::Point(int dimensions, double *coordinates) {
+        dim = dimensions;
+        values = new double[dimensions];
+        for (int i = 0; i < dim; i++)
+            values[i] = coordinates[i];
+    }
 
-Point::Point(int dimensions, double *coordinates) {
-    dim = dimensions;
-    values = new double[dimensions];
-    for (int i = 0; i < dim; i++)
-        values[i] = coordinates[i];
-}
-
-Point::Point(const Point& pointToCopy){
-    dim = pointToCopy.dim;
-    values = new double[dim];
-    for(int i = 0; i < dim; i++)
-        values[i] = pointToCopy.values[i];
-}
-
-Point &Point::operator=(const Point &assigningPoint) {
-    if (this == &assigningPoint) {
-        return *this;
-    } else {
-        delete [] values;
-        values = nullptr;
-
-        dim = assigningPoint.dim;
+    Point::Point(const Point &pointToCopy) {
+        dim = pointToCopy.dim;
         values = new double[dim];
         for (int i = 0; i < dim; i++)
-            values[i] = assigningPoint.values[i];
+            values[i] = pointToCopy.values[i];
     }
-    return *this;
-}
 
-Point::~Point(){
-    delete [] values;
-    values = nullptr;
-}
+    Point &Point::operator=(const Point &assigningPoint) {
+        if (this == &assigningPoint) {
+            return *this;
+        } else {
+            delete[] values;
+            values = nullptr;
 
-void Point::setValue(int dimension, double coordinate) {
-    assert(dimension - 1 < dim);
-    values[dimension - 1] = coordinate;
-}
-
-double Point::getValue(int dimension) const{
-    assert(dimension - 1 < dim);
-    return values[dimension -1];
-}
-
-double Point::distanceTo(const Point& toPoint) const{
-    assert(dim == toPoint.dim);
-    double sum = 0;
-    for (int i = 0; i < dim; i++)
-        sum += pow((values[i] - toPoint.values[i]), 2);
-    return sqrt(sum);
-}
-
-Point &Point::operator*=(double factor) {
-    for (int i = 0; i < dim; i++)
-        values[i] *= factor;
-    return *this;
-}
-
-Point &Point::operator/=(double factor) {
-    //assert(factor != 0);
-    if (factor == 0){
-        std::cout << "Cannot divide by zero!!" << std::endl;
+            dim = assigningPoint.dim;
+            values = new double[dim];
+            for (int i = 0; i < dim; i++)
+                values[i] = assigningPoint.values[i];
+        }
         return *this;
     }
-    for (int i = 0; i < dim; i++)
-        values[i] /= factor;
-    return *this;
-}
 
-const Point Point::operator*(double factor) const {
-    Point returnPoint(*this);
-    returnPoint*=factor;
-    return returnPoint;
-}
+    Point::~Point() {
+        delete[] values;
+        values = nullptr;
+    }
 
-const Point Point::operator/(double factor) const {
-    assert(factor != 0);
-    Point returnPoint(*this);
-    returnPoint/=factor;
-    return returnPoint;
-}
+    void Point::setValue(int dimension, double coordinate) {
+        assert(dimension - 1 < dim);
+        values[dimension - 1] = coordinate;
+    }
 
-namespace Clustering {
+    double Point::getValue(int dimension) const {
+        assert(dimension - 1 < dim);
+        return values[dimension - 1];
+    }
+
+    double Point::distanceTo(const Point &toPoint) const {
+        assert(dim == toPoint.dim);
+        double sum = 0;
+        for (int i = 0; i < dim; i++)
+            sum += pow((values[i] - toPoint.values[i]), 2);
+        return sqrt(sum);
+    }
+
+    Point &Point::operator*=(double factor) {
+        for (int i = 0; i < dim; i++)
+            values[i] *= factor;
+        return *this;
+    }
+
+    Point &Point::operator/=(double factor) {
+        //assert(factor != 0);
+        if (factor == 0) {
+            std::cout << "Cannot divide by zero!!" << std::endl;
+            return *this;
+        }
+        for (int i = 0; i < dim; i++)
+            values[i] /= factor;
+        return *this;
+    }
+
+    const Point Point::operator*(double factor) const {
+        Point returnPoint(*this);
+        returnPoint *= factor;
+        return returnPoint;
+    }
+
+    const Point Point::operator/(double factor) const {
+        assert(factor != 0);
+        Point returnPoint(*this);
+        returnPoint /= factor;
+        return returnPoint;
+    }
+
     Point &operator+=(Point &leftSide, const Point &rightSide) {
         dimEquivTest(leftSide, rightSide);
         for (int i = 0; i < rightSide.dim; i++)
-            leftSide.values[i]+=rightSide.values[i];
+            leftSide.values[i] += rightSide.values[i];
         return leftSide;
     }
 
     Point &operator-=(Point &leftSide, const Point &rightSide) {
         dimEquivTest(leftSide, rightSide);
         for (int i = 0; i < leftSide.dim; i++)
-            leftSide.values[i]-=rightSide.values[i];
+            leftSide.values[i] -= rightSide.values[i];
         return leftSide;
     }
 
@@ -197,5 +195,8 @@ namespace Clustering {
     void dimEquivTest(const Point &leftPoint, const Point &rightPoint) {
         assert(leftPoint.dim == rightPoint.dim);
     }
+
+
+
 
 }

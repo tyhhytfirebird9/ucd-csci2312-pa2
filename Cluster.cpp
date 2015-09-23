@@ -9,53 +9,55 @@ namespace Clustering {
     Cluster::Cluster(const Cluster &clusterToCopy) {
 
         size = clusterToCopy.size;
-        head = new LNode();
 
-        *(head->p) = *(clusterToCopy.head->p);
+        LNodePtr rightSide = new LNode();
+        LNodePtr leftSide = new LNode();
 
-        LNodePtr inCluster, copyCluster;
-        inCluster = clusterToCopy.head;
-        copyCluster = head;
+        head = leftSide;
+        rightSide->next = clusterToCopy.head;
+        rightSide = rightSide->next;
 
-        while (inCluster->next != nullptr) {
-            copyCluster->next = new LNode;
-            *(copyCluster->p) = *(inCluster->p);
-            copyCluster = copyCluster->next;
-            inCluster = inCluster->next;
+        while (rightSide->next != nullptr) {
+            leftSide->p = rightSide->p;
+            leftSide->next = new LNode();
+            leftSide = leftSide->next;
+            rightSide = rightSide->next;
         }
-        copyCluster->next = new LNode;
-        *(copyCluster->p) = *(inCluster->p);
-        inCluster->next = nullptr;
-
+        leftSide->next = new LNode();
+        leftSide->p = rightSide->p;
+        leftSide->next = nullptr;
     }
 
     Cluster &Cluster::operator=(const Cluster &assigningCluster) {
-        head->next = nullptr;
-        size = assigningCluster.size;
-        *(head->p) = *(assigningCluster.head->p);
+        // Maybe do this to deallocate all associated memory?
+        this->~Cluster();
+        LNodePtr leftSide = new LNode();
+        LNodePtr rightSide = new LNode();
 
-        LNodePtr leftSide, rightSide;
-        leftSide = head;
-        rightSide = assigningCluster.head;
+        head = nullptr;
+        size = assigningCluster.size;
+
+        head = leftSide;
+        rightSide->next = assigningCluster.head;
+        rightSide = rightSide->next;
 
         while (rightSide->next != nullptr) {
-            leftSide->next = new LNode;
-            *(leftSide->p) = *(rightSide->p);
-            rightSide = rightSide->next;
+            leftSide->p = rightSide->p;
+            leftSide->next = new LNode();
             leftSide = leftSide->next;
+            rightSide = rightSide->next;
         }
-        leftSide->next = new LNode;
-        *(leftSide->p) = *(rightSide->p);
+        leftSide->next = new LNode();
+        leftSide->p = rightSide->p;
         leftSide->next = nullptr;
 
-
+        return *this;
     }
 
     Cluster::~Cluster() {
 
     }
 
-    //c1.add(p2);
     void Cluster::add(const PointPtr &pointToAdd) {
         if (size == 0) {
             LNodePtr tempNode = new LNode();
@@ -63,9 +65,6 @@ namespace Clustering {
             tempNode->next = nullptr;
             head = tempNode;
             size++;
-
-            // delete tempNode;
-            // tempNode = nullptr;
         }
         else
         {
@@ -108,18 +107,16 @@ namespace Clustering {
 
     }
 
-    namespace clustering {
-        std::ostream &operator<<(std::ostream &os, const Cluster &clusterToRead) {
+    std::ostream &operator<<(std::ostream &os, const Cluster &clusterToRead) {
 
-        }
+    }
 
-        std::istream &operator>>(std::istream &is, Cluster &clusterToWrite) {
+    std::istream &operator>>(std::istream &is, Cluster &clusterToWrite) {
 
-        }
+    }
 
-        bool operator==(const Cluster &, const Cluster &) {
+    bool operator==(const Cluster &, const Cluster &) {
 
-        }
     }
 
     Cluster &Cluster::operator+=(const Cluster &rightSide) {
@@ -138,21 +135,20 @@ namespace Clustering {
 
     }
 
-    namespace Clustering {
-        const Cluster operator+(const Cluster &leftSide, const Cluster &rightSide) {
+    const Cluster operator+(const Cluster &leftSide, const Cluster &rightSide) {
 
-        }
-
-        const Cluster operator-(const Cluster &leftSide, const Cluster &rightSide) {
-
-        }
-
-        const Cluster operator+(const Cluster &leftSide, const PointPtr &rightSide) {
-
-        }
-
-        const Cluster operator-(const Cluster &leftSide, const PointPtr &rightSide) {
-
-        }
     }
+
+    const Cluster operator-(const Cluster &leftSide, const Cluster &rightSide) {
+
+    }
+
+    const Cluster operator+(const Cluster &leftSide, const PointPtr &rightSide) {
+
+    }
+
+    const Cluster operator-(const Cluster &leftSide, const PointPtr &rightSide) {
+
+    }
+
 }

@@ -14,6 +14,9 @@ using namespace Clustering;
 
 int main() {
 
+
+
+
     Point p1(2);
     p1.setValue(1, 2);
     p1.setValue(2, 5);
@@ -26,6 +29,14 @@ int main() {
 
     c1.add(&p1);
     c1.add(&p2);
+
+    Cluster c2(c1);
+
+    /*
+    Cluster c2;
+    c2 = c1;
+
+
 
 
     /*

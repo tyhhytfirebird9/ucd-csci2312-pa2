@@ -1,7 +1,6 @@
 //  FILE: Point.h
 //  CLASS PROVIDED: Point (a class for a point on a variable-dimension plane)
 
-
 #ifndef CLUSTERING_POINT_H
 #define CLUSTERING_POINT_H
 
@@ -65,7 +64,6 @@ namespace Clustering {
 
         friend std::ostream &operator<<(std::ostream&, const Point&);
         friend std::istream &operator<<(std::istream&, Point&);
-        //*/
 
         friend void dimEquivTest(const Point&, const Point&);
     };
