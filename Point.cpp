@@ -33,6 +33,7 @@ namespace Clustering {
 
     Point &Point::operator=(const Point &assigningPoint) {
         if (this == &assigningPoint) {
+            std::cout << "these are the same points!" << std::endl;
             return *this;
         } else {
             delete[] values;
@@ -47,17 +48,18 @@ namespace Clustering {
     }
 
     Point::~Point() {
-        delete[] values;
+        dim = 0;
+        delete [] values;
         values = nullptr;
     }
 
     void Point::setValue(int dimension, double coordinate) {
-        assert(dimension - 1 < dim);
+        assert(dimension > 0 && dimension - 1 < dim);
         values[dimension - 1] = coordinate;
     }
 
     double Point::getValue(int dimension) const {
-        assert(dimension - 1 < dim);
+        assert(dimension > 0 && dimension - 1 < dim);
         return values[dimension - 1];
     }
 
@@ -90,6 +92,7 @@ namespace Clustering {
         Point returnPoint(*this);
         returnPoint *= factor;
         return returnPoint;
+        // IS RETURN POINT GETTING DESTRUCTED?
     }
 
     const Point Point::operator/(double factor) const {
