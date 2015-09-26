@@ -14,8 +14,7 @@ using namespace Clustering;
 
 int main() {
 
-
-
+    // TEST COMMENT
 
     Point p1(2);
     p1.setValue(1, 2);
