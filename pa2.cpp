@@ -24,6 +24,78 @@ int main() {
     testPointClass();
     testClusterClass();
 
+    Cluster c1;
+    Cluster c2;
+    Point p1(3);
+    Point p2(3);
+    Point p3(3);
+    Point p4(3);
+
+    p1.setValue(1, 1);
+    p1.setValue(2, 2);
+    p1.setValue(3, 3);
+
+    p2.setValue(1, 1);
+    p2.setValue(2, 2);
+    p2.setValue(3, 3);
+
+    p3.setValue(1, 2);
+    p3.setValue(2, 3);
+    p3.setValue(3, 6);
+
+    p4.setValue(1, 0);
+    p4.setValue(2, 2);
+    p4.setValue(3, 5);
+
+    Point p5(3);
+    p5.setValue(1, 5);
+    p5.setValue(2, 6);
+    p5.setValue(3, 1);
+
+    Point p6(3);
+    p6.setValue(1, 1);
+    p6.setValue(2, 2);
+    p6.setValue(3, 3);
+
+    Point p7(3);
+    p7.setValue(1, 1);
+    p7.setValue(2, 2);
+    p7.setValue(3, 3);
+
+    c1.add(&p6);
+//    c1.add(&p7);
+//    c1.add(&p3);
+    c1.add(&p4);
+//    c1.add(&p1);
+    c1.add(&p5);
+//    c1.add(&p4);
+//    c1.add(&p2);
+//    c1.add(&p2);
+//    c1.add(&p5);
+//    c2.add(&p2);
+    c2.add(&p1);
+    c2.add(&p3);
+//    c2.add(&p4);
+    c2.add(&p6);
+//    c2.add(&p7);
+
+    if (c1 == c2)
+        cout << "The points are equal" << endl;
+
+    Cluster c3;
+    c3 = c1 - &p3;
+    c3 = c1 - &p1;
+    c3 = c1 + &p3;
+
+    c3 = c1 + c2;
+
+    c3 = c1 - c2;
+
+    c1 += c2;
+
+
+
+
     /*
     Point p1(2);
     p1.setValue(1, 2);
@@ -485,3 +557,4 @@ void testPointOperators() {
 void testClusterClass() {
 
 }
+

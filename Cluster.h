@@ -21,10 +21,10 @@ namespace Clustering {
     class Cluster {
     private:
         int size;
-        LNodePtr head;
+        LNodePtr points;
 
     public:
-        Cluster() : size(0), head(nullptr) {};
+        Cluster() : size(0), points(nullptr) {};
 
         // The Big Three: Copy constructor, Assignment operator=, destructor
         // Copy Constructor
@@ -38,6 +38,11 @@ namespace Clustering {
         void add(const PointPtr &);
         const PointPtr &remove(const PointPtr &);
 
+        // USED BY add() to add Points to a cluster
+        void addAbove(const PointPtr &, LNodePtr &);
+        void addBottom(LNodePtr &, const PointPtr &);
+        void addBetween(LNodePtr &, const PointPtr &, const LNodePtr &);
+
         // Overloaded operators
         // IO
         friend std::ostream &operator<<(std::ostream&, const Cluster&);
@@ -46,10 +51,11 @@ namespace Clustering {
         // Set-preserving operators (do not duplicate points in space)
         // - Friends
         friend bool operator==(const Cluster&, const Cluster&);
+        friend bool operator!=(const Cluster&, const Cluster&);
 
         // - Members
-        Cluster &operator+=(const Cluster&); // Union (returns a cluster with all points in both clusters)
-        Cluster &operator-=(const Cluster&); // (asymmetric) difference (returns cluster with only points that are in neither cluster)
+        Cluster &operator+=(const Cluster&); // UNION
+        Cluster &operator-=(const Cluster&); // (asymmetric) difference
 
         Cluster &operator+=(const Point&); // adds a Point to the Cluster
         Cluster &operator-=(const Point&); // removes a Point to the Cluster
