@@ -276,23 +276,32 @@ namespace Clustering {
     }
 
     Cluster &Cluster::operator+=(const Cluster &rightSide) {
-        const Cluster unionCluster = *this;
+        Cluster unionCluster = *this;
         LNodePtr cursor = rightSide.points;
         while (cursor != nullptr){
-            //unionCluster.add
+            unionCluster.add(cursor->p);
+            cursor = cursor->next;
         }
+        *this = unionCluster;
         return *this;
     }
 
     Cluster &Cluster::operator-=(const Cluster &rightSide) {
-        const Cluster tempCluster = *this;
-        *this = tempCluster - rightSide;
+        Cluster asyDifCluster = *this;
+        LNodePtr cursor = rightSide.points;
+        while (cursor != nullptr) {
+            asyDifCluster.remove(cursor->p);
+            cursor = cursor->next;
+        }
+        *this = asyDifCluster;
         return *this;
     }
 
     Cluster &Cluster::operator+=(const Point &rightSide) {
-    //    add(&rightSide);
+        const Point* const pointToAdd = &rightSide;
+        //this->add(pointToAdd);
         return *this;
+
     }
 
     Cluster &Cluster::operator-=(const Point &rightSide) {
@@ -306,36 +315,64 @@ namespace Clustering {
         Cluster unionCluster;
         LNodePtr cursor = leftSide.points;
         while (cursor != nullptr) {
-            unionCluster.add(cursor->p);
+            PointPtr newPoint = new Point(*(cursor->p));
+            unionCluster.add(newPoint);
             cursor = cursor->next;
         }
         cursor = rightSide.points;
         while (cursor != nullptr) {
-            unionCluster.add(cursor->p);
+            PointPtr newPoint = new Point(*(cursor->p));
+            unionCluster.add(newPoint);
             cursor = cursor->next;
         }
         return unionCluster;
     }
 
     const Cluster operator-(const Cluster &leftSide, const Cluster &rightSide) {
-        Cluster asyDifCluster(leftSide);
-        LNodePtr cursor = rightSide.points;
-        while (cursor != nullptr){
-            asyDifCluster.remove(cursor->p);
+        Cluster tempCluster(leftSide);
+        Cluster asyDifCluster;
+        LNodePtr cursor = leftSide.points;
+        while (cursor != nullptr) {
+            tempCluster.add(cursor->p);
             cursor = cursor->next;
+        }
+        cursor = rightSide.points;
+        while (cursor != nullptr) {
+            tempCluster.remove(cursor->p);
+            cursor = cursor->next;
+        }
+        cursor = tempCluster.points;
+        while (cursor != nullptr) {
+            PointPtr newPoint = new Point(*(cursor->p));
+            asyDifCluster.add(newPoint);
+            cursor  = cursor->next;
         }
         return asyDifCluster;
     }
 
     const Cluster operator+(const Cluster &leftSide, const PointPtr &rightSide) {
-        Cluster newCluster(leftSide);
-        newCluster.add(rightSide);
+        Cluster newCluster;
+        LNodePtr cursor = leftSide.points;
+        while (cursor != nullptr) {
+            PointPtr newPoint = new Point(*(cursor->p));
+            newCluster.add(newPoint);
+            cursor = cursor->next;
+        }
+        PointPtr newPoint = new Point(*rightSide);
+        newCluster.add(newPoint);
         return newCluster;
     }
 
     const Cluster operator-(const Cluster &leftSide, const PointPtr &rightSide) {
-        Cluster newCluster(leftSide);
-        newCluster.remove(rightSide);
+        Cluster newCluster;
+        LNodePtr cursor = leftSide.points;
+        while (cursor != nullptr) {
+            PointPtr newPoint = new Point(*(cursor->p));
+            newCluster.add(newPoint);
+            cursor = cursor->next;
+        }
+        PointPtr newPoint = new Point(*rightSide);
+        newCluster.remove(newPoint);
         return newCluster;
     }
 
