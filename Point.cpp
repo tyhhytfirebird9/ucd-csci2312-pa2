@@ -8,7 +8,7 @@
 
 // Default constructor
 namespace Clustering {
-    Point::Point() : Point(2) { }
+    //Point::Point() : Point(2) { }
 
     Point::Point(int dimensions) {
         dim = dimensions;
@@ -66,8 +66,11 @@ namespace Clustering {
     double Point::distanceTo(const Point &toPoint) const {
         assert(dim == toPoint.dim);
         double sum = 0;
-        for (int i = 0; i < dim; i++)
-            sum += pow((values[i] - toPoint.values[i]), 2);
+        for (int i = 0; i < dim; i++){
+            double diff = 0;
+            diff = values[i] - toPoint.values[i];
+            sum += diff * diff;
+        }
         return sqrt(sum);
     }
 
@@ -166,26 +169,23 @@ namespace Clustering {
     }
 
     bool operator<=(const Point &leftSide, const Point &rightSide) {
-        if (leftSide == rightSide)
-            return true;
-        if (leftSide < rightSide)
+        if (leftSide == rightSide || leftSide < rightSide)
             return true;
         return false;
     }
 
     bool operator>=(const Point &leftSide, const Point &rightSide) {
-        if (leftSide == rightSide)
-            return true;
-        if (leftSide > rightSide)
+        if (leftSide == rightSide || leftSide > rightSide)
             return true;
         return false;
     }
 
     std::ostream &operator<<(std::ostream &os, const Point &point) {
-        os << "This point has: " << point.dim << " dimensions." << std::endl;
-        os << "Its coordinates are: ";
-        for (int i = 0; i < point.dim; i++)
-            os << point.values[i] << " ";
+        //os << "This point has: " << point.dim << " dimensions." << std::endl;
+        //os << "Its coordinates are: ";
+        for (int i = 0; i < point.dim - 1; i++)
+            os << point.values[i] << ", ";
+        os << point.values[point.dim - 1];
         os << std::endl;
         return os;
     }
@@ -198,8 +198,4 @@ namespace Clustering {
     void dimEquivTest(const Point &leftPoint, const Point &rightPoint) {
         assert(leftPoint.dim == rightPoint.dim);
     }
-
-
-
-
 }

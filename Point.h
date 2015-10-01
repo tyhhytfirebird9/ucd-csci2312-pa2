@@ -14,7 +14,7 @@ namespace Clustering {
 
     public:
         // Constructors
-        Point();                // default constructor
+        //Point();                // default constructor
         Point(int);             // constructor for just dimension
         Point(int, double*);    // constructor for dimension and values
 
@@ -63,10 +63,9 @@ namespace Clustering {
         friend bool operator>=(const Point&, const Point&);
 
         friend std::ostream &operator<<(std::ostream&, const Point&);
-        friend std::istream &operator<<(std::istream&, Point&);
+        friend std::istream &operator>>(std::istream&, Point&);
 
         friend void dimEquivTest(const Point&, const Point&);
     };
-
 }
 #endif // CLUSTERING_POINT_H

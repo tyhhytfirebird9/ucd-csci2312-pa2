@@ -9,31 +9,28 @@ namespace Clustering {
     Cluster::Cluster(const Cluster &clusterToCopy) {
 
         size = clusterToCopy.size;
+        if (size != 0){
+            LNodePtr rightSide = clusterToCopy.points;
+            LNodePtr newCluster = new LNode();
 
-        LNodePtr rightSide = new LNode();
-        // LNodePtr rightSide = nullptr;
-        LNodePtr leftSide = new LNode();
+            points = newCluster;
 
-        points = leftSide;
-        rightSide->next = clusterToCopy.points;
-        // rightSide = clusterToCopy.points;
-        rightSide = rightSide->next;
-
-        while (rightSide->next != nullptr) {
-            leftSide->p = rightSide->p;
-            leftSide->next = new LNode();
-            leftSide = leftSide->next;
-            rightSide = rightSide->next;
+            while (rightSide->next != nullptr) {
+                newCluster->p = rightSide->p;
+                newCluster->next = new LNode();
+                newCluster = newCluster->next;
+                rightSide = rightSide->next;
+            }
+            //newCluster->next = new LNode();
+            newCluster->p = rightSide->p;
+            newCluster->next = nullptr;
         }
-        leftSide->next = new LNode();
-        leftSide->p = rightSide->p;
-        leftSide->next = nullptr;
-
     }
 
     Cluster &Cluster::operator=(const Cluster &assigningCluster) {
         // Check for self assignment
         if (this == &assigningCluster){
+            std::cout << "DO NOT SELF ASSIGN" << std::endl;
             return *this;
         }
 
@@ -61,11 +58,18 @@ namespace Clustering {
         return *this;
     }
 
+    // DESTRUCTOR works as it should EXCEPT when used on a Cluster that contains a Point that
+    // exists in another cluster, gives SEGFAULT. Not sure without smart pointers to work around
+    // this. Works perfectly fine IFF clusters do not share points.
     Cluster::~Cluster() {
         LNodePtr nodeToDelete = points;
         LNodePtr cursor = points;
         while (cursor != nullptr) {
             cursor = cursor->next;
+            // MEMORY LEAK I KNOW, BUT CANNOT DO THIS WITHOUT GETTING SEGFAULTS FOR NOW
+            // THIS IS BECAUSE ALTHOUGH WE WILL NOT HAVE CLUSTERS THAT HAVE THE SAME POINTS
+            // FOR TESTING I NEED TO BE ABLE TO. THEREFORE I NEED TO IMPLEMENT SMART POINTERS
+            //delete nodeToDelete->p;
             delete nodeToDelete;
             nodeToDelete = cursor;
             size--;
@@ -77,23 +81,23 @@ namespace Clustering {
         // This will only happen if the point passed in is passed in the case of c1.add(c2.remove(p1))
         // where p1 is not in cluster 2.
         if (pointToAdd == nullptr) {
-            std::cout << "The Point you are trying to add cannot be added. " << std::endl;
-            std::cout << "This is because the argument passed in is a null pointer. " << std::endl;
+            //std::cout << "The Point you are trying to add cannot be added. " << std::endl;
+            //std::cout << "This is because the argument passed in is a null pointer. " << std::endl;
         }
-        // Test to see if the Linked List is empty, if so create a new Node that the points points to.
-        // Then store the point address into that node, and make the LNodePtr next a null pointer.
+            // Test to see if the Linked List is empty, if so create a new Node that the points points to.
+            // Then store the point address into that node, and make the LNodePtr next a null pointer.
         else if (size == 0) {
-            std::cout << "The cluster was empty adding a new point... " << std::endl;
+            //std::cout << "The cluster was empty adding a new point... " << std::endl;
             LNodePtr tempNode = new LNode();
             tempNode->p = pointToAdd;
             tempNode->next = nullptr;
             points = tempNode;
             size++;
         }
-        //  The Linked list is not empty, so find where in the list the point belongs.
-        //  If it is at the end set its next to nullptr.
+            //  The Linked list is not empty, so find where in the list the point belongs.
+            //  If it is at the end set its next to nullptr.
         else {
-            std::cout << "The cluster was not empty, finding where to put the point now... " << std::endl;
+            //std::cout << "The cluster was not empty, finding where to put the point now... " << std::endl;
             LNodePtr cursor = points;
             LNodePtr nextNode = points->next;
             // Does it need to be added at the points;
@@ -127,7 +131,7 @@ namespace Clustering {
                     }
                 }
                 // The point should be added at the middle or end
-                if (shouldAdd == true) {
+                if (shouldAdd) {
                     while (nextNode->next != nullptr) {
                         if (*(nextNode->p) > *pointToAdd) {
                             addBetween(cursor, pointToAdd, nextNode);
@@ -152,7 +156,7 @@ namespace Clustering {
                         }
                     }
                 }
-                if (shouldAdd == true) {
+                if (shouldAdd) {
                     if (*pointToAdd > *(nextNode->p)){
                         addBottom(nextNode, pointToAdd);
                     } else if(*pointToAdd < *(nextNode->p)) {
@@ -246,12 +250,23 @@ namespace Clustering {
         size++;
     }
 
-    std::ostream &operator<<(std::ostream &os, const Cluster &clusterToSend) {
-
+    std::ostream &operator<<(std::ostream &os, const Cluster &clusterToPrint) {
+        // No instructions for how this should work have been given, currently set up for testing
+        LNodePtr cursor = clusterToPrint.points;
+        if (clusterToPrint.size == 0){
+            std::cout << "This cluster is empty" << std::endl;
+        }
+        //std::cout << "This cluster contains the points:  " << std::endl;
+        for(int i = 0; i < clusterToPrint.size; i++){
+            std::cout << i + 1 << ". " << *(cursor->p);
+            cursor = cursor->next;
+        }
+        return os;
     }
 
     std::istream &operator>>(std::istream &is, Cluster &cluster) {
-
+        // IMPLEMENTATION INTENTIONALLY LEFT BLANK
+        return is;
     }
 
     bool operator==(const Cluster &leftSide, const Cluster &rightSide) {
@@ -275,105 +290,78 @@ namespace Clustering {
         return !(leftSide == rightSide);
     }
 
+    // Set Destructive: Will make the calling Cluster the UNION of both clusters
     Cluster &Cluster::operator+=(const Cluster &rightSide) {
-        Cluster unionCluster = *this;
-        LNodePtr cursor = rightSide.points;
-        while (cursor != nullptr){
-            unionCluster.add(cursor->p);
-            cursor = cursor->next;
-        }
-        *this = unionCluster;
+        const Cluster tempCluster = *this;
+        *this = tempCluster + rightSide;
         return *this;
     }
 
+    // Set destructive: Will make calling Cluster the asymmetric difference.
     Cluster &Cluster::operator-=(const Cluster &rightSide) {
-        Cluster asyDifCluster = *this;
-        LNodePtr cursor = rightSide.points;
-        while (cursor != nullptr) {
-            asyDifCluster.remove(cursor->p);
-            cursor = cursor->next;
-        }
-        *this = asyDifCluster;
+        const Cluster tempCluster = *this;
+        *this = tempCluster - rightSide;
         return *this;
     }
 
+    // Set preservative. Will add a new point to the Linked list with the values of rightSide.
     Cluster &Cluster::operator+=(const Point &rightSide) {
-        const Point* const pointToAdd = &rightSide;
-        //this->add(pointToAdd);
+        PointPtr newPoint = new Point(rightSide);
+        this->add(newPoint);
         return *this;
-
     }
 
+    // Set preservative. Removes ALL points in the cluster with the same values as rightSide.
     Cluster &Cluster::operator-=(const Point &rightSide) {
-    //    remove(&rightSide);
+        PointPtr newPoint = new Point(rightSide);
+        LNodePtr cursor = points;
+        while (cursor != nullptr){
+            if (*(cursor->p) == rightSide){
+                PointPtr pointToRemove = cursor->p;
+                cursor = cursor->next;
+                remove(pointToRemove);
+            } else {
+                cursor = cursor->next;
+            }
+        }
+        delete newPoint;
         return *this;
     }
 
-
+    // Set Destructive ALWAYS. Creates a cluster that contains all points in leftSide AND rightSide
     const Cluster operator+(const Cluster &leftSide, const Cluster &rightSide) {
         // UNION c1 = (p1, p3, p6) + c2 = (p4, p9, p12) then return c3 = (p1, p3, p4, p6, p9, p12)
-        Cluster unionCluster;
-        LNodePtr cursor = leftSide.points;
+        Cluster unionCluster(leftSide);
+        LNodePtr cursor = rightSide.points;
         while (cursor != nullptr) {
-            PointPtr newPoint = new Point(*(cursor->p));
-            unionCluster.add(newPoint);
-            cursor = cursor->next;
-        }
-        cursor = rightSide.points;
-        while (cursor != nullptr) {
-            PointPtr newPoint = new Point(*(cursor->p));
-            unionCluster.add(newPoint);
+            unionCluster.add(cursor->p);
             cursor = cursor->next;
         }
         return unionCluster;
     }
 
+    // Set destructive ALWAYS. Creates a cluster with points only in the leftSide cluster NOT rightSide cluster
     const Cluster operator-(const Cluster &leftSide, const Cluster &rightSide) {
-        Cluster tempCluster(leftSide);
-        Cluster asyDifCluster;
-        LNodePtr cursor = leftSide.points;
-        while (cursor != nullptr) {
-            tempCluster.add(cursor->p);
+        Cluster asyDifCluster(leftSide);
+        LNodePtr cursor = rightSide.points;
+        while (cursor != nullptr){
+            asyDifCluster.remove(cursor->p);
             cursor = cursor->next;
-        }
-        cursor = rightSide.points;
-        while (cursor != nullptr) {
-            tempCluster.remove(cursor->p);
-            cursor = cursor->next;
-        }
-        cursor = tempCluster.points;
-        while (cursor != nullptr) {
-            PointPtr newPoint = new Point(*(cursor->p));
-            asyDifCluster.add(newPoint);
-            cursor  = cursor->next;
         }
         return asyDifCluster;
     }
 
+    // Set destructive, iff the point is added to two clusters.
     const Cluster operator+(const Cluster &leftSide, const PointPtr &rightSide) {
-        Cluster newCluster;
-        LNodePtr cursor = leftSide.points;
-        while (cursor != nullptr) {
-            PointPtr newPoint = new Point(*(cursor->p));
-            newCluster.add(newPoint);
-            cursor = cursor->next;
-        }
-        PointPtr newPoint = new Point(*rightSide);
-        newCluster.add(newPoint);
+        Cluster newCluster(leftSide);
+        newCluster.add(rightSide);
         return newCluster;
     }
 
+    // Set destructive: Returns a new Cluster with all points contained in leftSide, except the argument point.
     const Cluster operator-(const Cluster &leftSide, const PointPtr &rightSide) {
-        Cluster newCluster;
-        LNodePtr cursor = leftSide.points;
-        while (cursor != nullptr) {
-            PointPtr newPoint = new Point(*(cursor->p));
-            newCluster.add(newPoint);
-            cursor = cursor->next;
-        }
-        PointPtr newPoint = new Point(*rightSide);
-        newCluster.remove(newPoint);
+        Cluster newCluster(leftSide);
+        newCluster.remove(rightSide);
         return newCluster;
     }
-
 }
