@@ -4,9 +4,9 @@
 
 // Required directives
 #include <iostream>
-#include <iomanip>      // required for setprecision()
 #include "Point.h"      // required to use the Point class
 #include "Cluster.h"    // required to use the Cluster class
+
 
 using namespace std;
 using namespace Clustering;
@@ -30,11 +30,21 @@ void testClusterUNIONandASYDIF();
 void testClusterADDandREMOVEByObject();
 void testClusterADDandREMOVEByPointer();
 
+// masterCluster holds all points for deallocation.
+// It should be global so all functions can add to it,
+// and it should hold all points that are dynamically
+// allocated so it can deallocate them properly.
+Cluster masterCluster(true);
+
 int main() {
 
-    testPointClass();
-    testClusterClass();
+    // This calls each of the functions defined in the testPointClass function defined below.
+    //testPointClass();
 
+    // This calls each of the functions defined in the testClusterClass function defined below.
+    //testClusterClass();
+
+    masterCluster.~Cluster();
     return 0;
 }
 
@@ -106,82 +116,104 @@ void testPointConstructorsandAssignment() {
     *p2Assigned = *p2;
     cout << "p2 assigned!" << endl;
     cout << "p2: " << *p2 << "p2Assigned: " << *p2Assigned << endl;
+
+    delete p1;
+    delete p2;
+    delete p3;
+    delete p3copy;
+    delete p3copy2;
+    delete p2Assigned;
+
     cout << "FINISED TESTING CONSTRUCTORS AND ASSIGNMENT OPERATOR FOR POINT CLASS" << endl << endl;
 }
 void testPointAccessorsandMutators() {
     cout << "TESTING POINT ACCESSORS AND MUTATORS" << endl;
-    Point p1(3);     // Default point
-    cout << "p1 created: " << p1 << endl;
-    Point p2(3);    // Default Point 3 dimensions
-    cout << "p2 created: " << p2 << endl;
+    PointPtr p1 = new Point(3);     // Default point
+    cout << "p1 created: " << *p1 << endl;
+    PointPtr p2 = new Point(3);    // Default Point 3 dimensions
+    cout << "p2 created: " << *p2 << endl;
 
     double arr[] = {1, 3, 7, 5, 2};
-    Point p3(5,arr);
-    cout << "p3 created: " << p3 << endl;
+    PointPtr p3 = new Point(5,arr);
+    cout << "p3 created: " << *p3 << endl;
 
     cout << "testing accessors and mutators" << endl;
     // Accessors and Mutators
     // getDims()
     cout << "getDims() " << endl;
-    cout << "p1 has " << p1.getDims() << " dimensions." << endl;
-    cout << "p2 has " << p2.getDims() << " dimensions." << endl;
-    cout << "p3 has " << p3.getDims() << " dimensions." << endl;
+    cout << "p1 has " << p1->getDims() << " dimensions." << endl;
+    cout << "p2 has " << p2->getDims() << " dimensions." << endl;
+    cout << "p3 has " << p3->getDims() << " dimensions." << endl;
 
     // setValue()
     // Fail test (intentionally out of bounds)
-    //int aboveBounds = p3.getDims() + 1;
+    //int aboveBounds = p3->getDims() + 1;
     //int belowBounds = 0;
     double testValue = 3.45;
-    //p3.setValue(aboveBounds, testValue);  // Commented out so the program can run, but tested (WORKING)
-    //p3.setValue(belowBounds, testValue);    // Commented out so the program can run, but tested (WORKING)
+    //p3->setValue(aboveBounds, testValue);  // Commented out so the program can run, but tested (WORKING)
+    //p3->setValue(belowBounds, testValue);    // Commented out so the program can run, but tested (WORKING)
 
     cout << endl << "testing setValue()" << endl;
-    p3.setValue(p3.getDims()-2, testValue);
-    cout << "p3 dimension " << p3.getDims()-2 << " set to " << p3.getValue(p3.getDims() - 2) << endl;
-    cout << p3 << endl;
-    p2.setValue(p2.getDims()-1, testValue);
-    cout << "p2 dimension " << p2.getDims() - 1 << " set to " << p2.getValue(p2.getDims() - 1) << endl;
-    cout << p2 << endl;
+    p3->setValue(p3->getDims()-2, testValue);
+    cout << "p3 dimension " << p3->getDims()-2 << " set to " << p3->getValue(p3->getDims() - 2) << endl;
+    cout << *p3 << endl;
+    p2->setValue(p2->getDims()-1, testValue);
+    cout << "p2 dimension " << p2->getDims() - 1 << " set to " << p2->getValue(p2->getDims() - 1) << endl;
+    cout << *p2 << endl;
+
+    delete p1;
+    delete p2;
+    delete p3;
+
     cout << "FINISHED TESTING ACCESSORS AND MUTATORS FOR THE POINT CLASS" << endl << endl;
 }
 void testDistanceTo() {
     cout << "TESTING distanceTo() " << endl;
     // Fail on purpose
-    Point p1(3);
-    //Point p2(3);
-    // p2.distanceTo(p1); // p2 and p1 have different dimensions (tested Working)
+    PointPtr p1 = new Point(3);
+    //PointPtr p2 = new Point(3);
+    // p2->distanceTo(*p1); // p2 and p1 have different dimensions (tested Working)
 
     // Successes
     // Same Point
-    Point p1copy(p1);
-    cout << "Distance from p1 to p1copy " << p1.distanceTo(p1copy) << endl;
+    PointPtr p1copy = new Point(*p1);
+    cout << "Distance from p1 to p1copy: " << p1->distanceTo(*p1copy) << endl << endl;
 
     // 2 dimensions
-    Point point2D_1(2);
-    Point point2D_2(2);
-    point2D_1.setValue(1, 2.3);
-    point2D_1.setValue(2, -3.7);
-    point2D_2.setValue(1, 0);
-    point2D_2.setValue(2, 9);
+    PointPtr point2D_1 = new Point(2);
+    PointPtr point2D_2 = new Point(2);
+    point2D_1->setValue(1, 2.3);
+    point2D_1->setValue(2, -3.7);
+    point2D_2->setValue(1, 0);
+    point2D_2->setValue(2, 9);
 
-    cout << point2D_1 << point2D_2 << endl;
-    cout << "This distance between point2D_1, and point2D_2 is: " << point2D_1.distanceTo(point2D_2) << endl;
+    cout << "point2D_1: " << *point2D_1  << "point2D_2: " <<  *point2D_2;
+    cout << "This distance between point2D_1, and point2D_2 is: " << point2D_1->distanceTo(*point2D_2) << endl << endl;
 
     // 5 dimensions
-    Point point5D_1(5);
-    Point point5D_2(5);
+    PointPtr point5D_1 = new Point(5);
+    PointPtr point5D_2 = new Point(5);
     for (int i = 0; i < 5; i++) {
-        point5D_1.setValue(i+1, (i+1)*2);
+        point5D_1->setValue(i+1, (i+1)*2);
     }
     cout << "point5D_1 initialized" << endl;
-    cout << point5D_1 << endl;
+    cout << *point5D_1 << endl;
     for (int i = 5; i > 0; i--) {
-        point5D_2.setValue(i, i-4);
+        point5D_2->setValue(i, i-4);
     }
     cout << "point5D_2 initialized" << endl;
-    cout << point5D_2 << endl;
+    cout << *point5D_2 << endl;
 
-    cout << "The distance between these two points is " << point5D_1.distanceTo(point5D_2) << endl;
+    cout << "The distance between these two points is " << point5D_1->distanceTo(*point5D_2) << endl;
+
+    delete p1;
+    //delete p2;
+    delete p1copy;
+    delete point2D_1;
+    delete point2D_2;
+    delete point5D_1;
+    delete point5D_2;
+
     cout << "FINISHED TESTING distanceTo()" << endl << endl;
 }
 void testPointOperators() {
@@ -200,6 +232,7 @@ void testPointOperators() {
     cout << "FINISHED TESTING OVERLOADED OPERATORS FOR THE POINT CLASS" << endl << endl;
 }
 void testPointEquivandCompare() {
+    cout << "Testing the equivalence operators" << endl;
     PointPtr p1 = new Point(3);
     p1->setValue(1, 1);
     p1->setValue(2, 2);
@@ -236,7 +269,7 @@ void testPointEquivandCompare() {
     // TESTING <, >, <=, >=
     // < and >
     cout << "Testing p1 < p2 " << endl;
-    cout << "p1 " << *p1 << endl << "p2 " << *p2 << endl;
+    cout << "p1 " << *p1 << "p2 " << *p2 << endl;
     cout << "The points are currently equivalent so we expect any >=, or <= to print. " << endl;
     cout << "We also expect <, and > to fail" << endl;
     if (*p1 < *p2)
@@ -257,7 +290,7 @@ void testPointEquivandCompare() {
         cout << "p2 >= p1" << endl;
     cout << endl;
 
-    cout << "Now changing p1's second value to 1" << endl;
+    cout << "Now changing p1's second value to 1" << endl << endl;
     p1->setValue(2, 1);
     cout << "We expect p1 > p2, p1 >= p2, p2 < p1, and p2 <= p1 to print" << endl;
     if (*p1 < *p2)
@@ -278,7 +311,7 @@ void testPointEquivandCompare() {
         cout << "p2 >= p1" << endl;
     cout << endl;
 
-    cout << "Now changing p2's first value to 2" << endl;
+    cout << "Now changing p2's first value to 2" << endl << endl;
     p2->setValue(1, 2);
     cout << "We now expect p2 > p1, p2 >= p1, p1 < p2, and p1 <= p2 to print" << endl;
     if (*p1 < *p2)
@@ -298,8 +331,15 @@ void testPointEquivandCompare() {
     if (*p2 >= *p1)
         cout << "p2 >= p1" << endl;
     cout << endl;
+
+    delete p1;
+    delete p2;
+    //delete point2D;
+
+    cout << "End testing of equivalence operators" << endl << endl;
 }
 void testPointPlusandMinus(){
+    cout << "Testing +, -, +=, and -= " << endl;
     PointPtr p1 = new Point(3);
     p1->setValue(1, 6);
     p1->setValue(2, 4.2);
@@ -319,31 +359,29 @@ void testPointPlusandMinus(){
     // TESTING += and -=
     // +=
     cout << "testing p1 += p2" << endl;
-    cout << "p1" << endl << *p1 << "p2" << endl << *p2;
+    cout << "p1: " << *p1 << "p2: " << *p2;
     *p1 += *p2;
-    cout << "The sum is: " << endl;
-    cout << "p1" << endl << *p1 << endl;
+    cout << "The sum is: " << *p1 << endl;
 
     // -=
     cout << "testing p1 -= p2" << endl;
-    cout << "p1" << endl << *p1 << "p2" << endl << *p2;
+    cout << "p1: " << *p1 << "p2: " << *p2;
     *p1 -= *p2;
-    cout << "The difference is: " << endl;
-    cout << "p1" << endl << *p1 << endl;
+    cout << "The difference is: " << *p1 << endl;
 
     // TESTING + and -
     // +
-    cout << "Testing p1 + p2" << endl;
-    cout << "p1" << endl << *p1 << "p2" << endl << *p2;
+    cout << "Testing p3 = p1 + p2" << endl;
+    cout << "p1: " << *p1 << "p2: " << *p2;
     PointPtr p3 = new Point(3);
     *p3 = *p1 + *p2;
-    cout << "p3" << endl << *p3 << endl;
+    cout << "p3: " << *p3 << endl;
 
     // -
-    cout << "Testing p2 - p1" << endl;
-    cout << "p2" << endl << *p2 << "p1" << endl << *p1;
+    cout << "Testing p3 = p2 - p1" << endl;
+    cout << "p2: " << *p2 << "p1: " << *p1;
     *p3 = *p2 - *p1;
-    cout << "p3" << endl << *p3 << endl;
+    cout << "p3: " << *p3 << endl;
 
     // TESTING FAIL CASE FOR +=, -=, + and - (WORKING)
     // These should all crash the program because the dimensions are not the same.
@@ -352,8 +390,16 @@ void testPointPlusandMinus(){
     //*p2 -= *point2D;        // PROVENT MAIN FROM
     //*p3 = *p2 + *point2D;    // CRASHING THE
     //*p3 = *p1 - *point2D;    // PROGRAM
+
+    delete p1;
+    delete p2;
+    delete p3;
+    //delete point2D;
+
+    cout << "End testing for arithmetic operators" << endl << endl;
 }
 void testPointMultandDiv(){
+    cout << "Testing *, /, *=, and /= operators " << endl;
     PointPtr p1 = new Point(3);
     p1->setValue(1, 6);
     p1->setValue(2, 4.2);
@@ -383,11 +429,11 @@ void testPointMultandDiv(){
     // TESTING * and /
     // *
     PointPtr p2 = new Point(3);
-    cout << "Created p2 with three dimensions" << endl << *p2;
+    cout << "Created p2 with three dimensions" << endl << *p2 << endl;
 
     cout << "Testing p2 = p1 * 5.6" << endl;
     *p2 = *p1 * 5.6;
-    cout << "p1" << endl << *p1 << "p2" << endl << *p2 << endl;
+    cout << "p1: " << *p1 << "p2: " << *p2 << endl;
 
     // /
     // first divide by 0 (TEST SUCCEEDS PROGRAM MEANT TO FAIL)
@@ -398,7 +444,12 @@ void testPointMultandDiv(){
     // now divide by a number
     cout << "testing p2 = p1 / 7" << endl;
     *p2 = *p1 / 7;
-    cout << "p1" << endl << *p1 << "p2" << endl << *p2 << endl;
+    cout << "p1: " << *p1 << "p2: " << *p2 << endl;
+
+    delete p1;
+    delete p2;
+
+    cout << "End testing of the multiplication and division operators " << endl << endl;
 }
 
 void testClusterConstructorsandAssignment(){
@@ -443,8 +494,12 @@ void testClusterConstructorsandAssignment(){
     cout << "Checking for self assignment " << endl;
     c1 = c1;
 
-    cout << "Now c4 = c1" << endl;
+    cout << endl << "Now c4 = c1" << endl;
     cout << "c1: " << endl << c1 << endl << "c4: " << endl << c4 << endl;
+
+    masterCluster.add(p1);
+    masterCluster.add(p2);
+    masterCluster.add(p3);
 
     cout << "End testing for Copy constructor and Assignment operator for the cluster class" << endl << endl;
 }
@@ -496,7 +551,7 @@ void testClusterAddandRemove(){
     c1.add(p2);
     c1.remove(p4);
     c1.remove(p1);
-    cout << "testing remove of last node" << endl;
+    cout << "testing remove of last nodes" << endl;
     cout << "c1: " << endl << c1 << endl;
 
     c1.add(p1);
@@ -516,7 +571,12 @@ void testClusterAddandRemove(){
     cout << "testing c1.add(c1.remove(p2))" << endl;
     cout << "c1: " << endl << c1 << endl;
 
-    cout << "End testing for add and remove functions for Cluster class" << endl;
+    masterCluster.add(p1);
+    masterCluster.add(p2);
+    masterCluster.add(p3);
+    masterCluster.add(p4);
+
+    cout << "End testing for add and remove functions for Cluster class" << endl << endl;
 }
 void testClusterEquiv(){
     cout << "Testing the equivalence functions for the cluster class" << endl << endl;
@@ -545,7 +605,7 @@ void testClusterEquiv(){
     c1.add(p3);
     c2.add(p4);
 
-    cout << "This operator will return false if the sizes arent the same" << endl;
+    cout << "This operator will return false if the sizes arent the same" << endl << endl;
     c1.remove(p1);
     cout << "c1: " << endl << c1 << endl;
     cout << "c2: " << endl << c2 << endl;
@@ -566,8 +626,8 @@ void testClusterEquiv(){
         cout << "These clusters are equal" << endl;
     if (c1 != c2)
         cout << "These clusters are not equal" << endl;
-    cout << "In this case c1 and c2 may look equal, but c1 contains p1, and c2 contains p1 4, 6, 8 but c2 has ";
-    cout << "p4 4, 6, 8. They have different memory addresses." << endl << endl;
+    cout << "In this case c1 and c2 may look equal, but c1 contains p1: 4, 6, 8 but c2 has ";
+    cout << "p4: 4, 6, 8. They have different memory addresses." << endl << endl;
 
     c1.add(p4);
     c2.add(p1);
@@ -579,9 +639,12 @@ void testClusterEquiv(){
     if (c1 != c2)
         cout << "These clusters are not equal" << endl;
 
-    cout << endl << "End testing equivalence operators for the cluster class" << endl;
+    masterCluster.add(p1);
+    masterCluster.add(p2);
+    masterCluster.add(p3);
+    masterCluster.add(p4);
 
-
+    cout << endl << "End testing equivalence operators for the cluster class" << endl << endl;
 }
 void testClusterUNIONandASYDIF(){
     cout << "Testing the UNION and Asymmetric difference functions for the cluster class" << endl << endl;
@@ -646,6 +709,10 @@ void testClusterUNIONandASYDIF(){
     c4 = c3 - c1;
     cout << "Asymmetric Difference c4: " << endl << c4 << endl;
 
+    masterCluster.add(p1);
+    masterCluster.add(p2);
+    masterCluster.add(p3);
+    masterCluster.add(p4);
 
     cout << "End Testing for Union and Asymmetric Difference of the cluster class" << endl << endl;
 }
@@ -675,6 +742,8 @@ void testClusterADDandREMOVEByObject(){
     c1 += p1;
     c1 += p1;
     p1.setValue(2,1.3);
+
+    masterCluster += c1;
 
     cout << "Testing removing all points that have the same values as the object point (c1 -= p1)" << endl;
     cout << "current c1: " << endl << c1 << endl;
@@ -711,12 +780,17 @@ void testClusterADDandREMOVEByPointer(){
     cout << "Testing adding a point by pointer (c1 = c2 + p3)" << endl;
     cout << "current c1:" << endl << c1 << endl << "current c2: " << endl << c2 << endl;
     c1 = c2 + p3;
-    cout << "result c1: " << endl << c1 << endl;
+    cout << "after calling c1 = c2 + p3<-{2, 2.333..., 2.666...} " << endl << "result c1: " << endl << c1 << endl;
 
     cout << "Testing removing a point by pointer (c3 = c1 - p4)" << endl;
     cout << "current c3:" << endl << c3 << endl << "current c1: " << endl << c1 << endl;
     c3 = c1 - p1;
-    cout << "result c3: " << endl << c3 << endl;
+    cout << "after calling c3 = c1 - p1<-{4, 6, 8} " << endl << "result c3: " << endl << c3 << endl;
+
+    masterCluster.add(p1);
+    masterCluster.add(p2);
+    masterCluster.add(p3);
+    masterCluster.add(p4);
 
     cout << "End Testing adding and removing a Point by pointer" << endl << endl;
 }

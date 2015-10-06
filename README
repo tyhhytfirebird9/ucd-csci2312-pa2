@@ -1,10 +1,15 @@
 ## CSCI 2312: Programming Assignment 1
 
-###_Working with Objects_
+###_Working with Pointers and Dynamic Memory_
 
 * * *
 
-C++ lets us program with _objects_. We describe objects in C++ by declaring and defining _classes_. We _declare_ our class's structure in a header file, just like in C, and _define_ it (that is , write the code that actually does the work) in a corresponding source code file.
+The main purpose of this project was to get practice working with _pointers_ and _Dynamic Memory_. As well as: 
+ 1. Practicing class design with the Point and Cluster classes.
+ 2. Learning to overload operators for class types.
+ 3. Continuing using git and Github.
+ 4. Developing good coding style.
+
 
 
 ###_Description of the Project_
@@ -13,111 +18,264 @@ C++ lets us program with _objects_. We describe objects in C++ by declaring and 
 
 **_Prompt_**
 
-The objective of this assignment was to clone the provided _2-dimensional_ point class that was obtained from the github repository, and adapt it to work with _3-dimensional_ points. We then were prompted to implement a member function of the point class that would estimate
- the distance between the object that called the method, and the point that was passed in. Next we were instructed to implement a non-member function that would calculate the area of the _3-dimensional_ triangle.
+PA2 asks you to update your 3D Point class to make it more universal and functional and create a Cluster class which will hold a big number of Point objects. For this assignment, you will create your own Github repository called ucd-csi2312-pa2. You have to write your own README.md, describing your work in the form of documentation for the two classes Point and Cluster.
  
 **_Description of the Code_**
  
-The main function first _instantiates_ three instances of the _Point_ class: _pointA, pointB, pointC_. It then begins a _for loop_ that runs three times, which prompts the user to enter the x, y, and z coordinate values for a single point. At the bottom of the _for loop_, the
- _if statements_ determine which point should be worked with and assigns the temporary x, y, and z coordinate values into the member variables of that point. After the _for loop_ finishes executing the precision is set to 2 decimal places, and the _computeArea()_ global function is
- called, with _pointA, pointB, and pointC_ passed in by reference. This function calls the member function _distanceTo()_ three times to determine each side length of the triangle. Then plugs these values into Heron's formula to determine the area of the triangle. This area is
- printed to the screen along with a message to the user.
- 
+Included are two Classes both their header and implementation files, as well as a main file. The main file contains several functions called by main(), to test various aspects of the two classes.
+
+The Point class can create points with dimensions of any arbitrary number. It has two _private_ member variables: an _integer_ for the number of dimensions, and a pointer to a _double_ for its values. Additional Documentation follows.
+
+The Cluster class is designed to hold _pointers_ to _Points_. It has three _private_ member variables: an _integer_ for the size, a _pointer_ to an _LNode_ that acts as the head, and a _bool_ that can be set to tell the cluster to deallocate the points it contains. The Cluster class holds points in a _Singly-Linked List_. More Documentation follows.
+
+###_Documentation_
+
+* * *
+
+**_Documentation of the Point class._**
+
+```
+
+    FILE: Point.h
+    CLASS PROVIDED: Point (a class for a point on variable-dimension plane)
+
+            CONSTRUCTORS for the Point class:
+            Point(int dim);
+            Post-Condition: a new Point is created that has "dim" dimensions, and "dim" dynamically
+                             allocated doubles set to 0.
+            
+            Point(int dim, double* values);    // constructor for dimension and values
+            Pre-Condition: the pointer passed in must have the same number of data as the dimensions being passed in.
+            Post-Condition: a new Point is created that has "dim" dimensions, and "dim" dynamically 
+                             allocated doubles starting at values.
+    
+    
+            BIG THREE: overloaded copy constructor, assignment operator=, and destructor for the Point class:
+            Point(const Point&);
+            Post-Condition: A new Point is created with equivalent dimensions and values as the point passed in, but
+                             it has a different memory address.
+            
+            Point &operator=(const Point&);
+            Pre-Condition: The Point must not be the same point.
+            Post-Condition: The Point is destroyed, and then reinitialized with the same dimensions and values
+                             as the assigning point, but with different memory addresses.
+            
+            ~Point();
+            Post-Condition: The Points values are deallocated from memory and pointed to nullptr, its
+                             dimensions are set to 0.
+    
+    
+            MUTATOR AND ACCESSOR functions for the Point class:
+            int getDims() const { return dim; }
+            Post-Condition: NA
+            
+            void setValue(int dim, double value);
+            PreCondition: dim must be a valid dimension of the object.
+            Post-Condition: The value of dimension ("dim-1") is set to "value". To avoid confusion dimensions start at 1.
+            
+            double getValue(int dim) const;
+            PreCondition: "dim" must be a valid dimension of the object.
+            Post-Condition: NA
+            
+            
+            DISTANCE TO function for the Point class:
+            double distanceTo(const Point &) const; // Calculates the distance between two points
+            PreCondition: Points must have the same number of dimensions
+            Post-Condition: NA
+    
+    
+            OVERLOADED member operators for the Point Class:
+            Point &operator*=(double factor);
+            Post-Condition: The values of Point are multiplied by a factor of "factor".
+           
+            Point &operator/=(double factor);
+            PreCondition: The factor passed in must not be 0.
+            Post-Condition: The values of the Point are divided by a factor of "factor".
+            
+            const Point operator*(double factor) const; // prevents (p1*2) = p2
+            Post-Condition: An anonymous Point is returned, that has values of the lefthand side Point's values
+                             multiplied by the factor "factor".
+            
+            const Point operator/(double factor) const;
+            Pre-Condition: The factor passed in must not be 0.
+            Post-Condition: An anonymous Point is returned; that has values of the lefthand side Point's values
+                             divided by the factor "factor".
+            
+    
+            double &operator[](int index) { return values[index - 1]; }
+            PreCondition: "index" must be a valid dimension of the values array. Dimensions start at 1.
+    
+            OVERLOADED friend operators for the Point Class:
+            friend Point &operator+=(Point& callingPoint, const Point& addingPoint);     // Must have both arguments because it is a friend
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: callingPoint's values will be increased by addingPoint's values, per dimension.
+            
+            friend Point &operator-=(Point& callingPoint, const Point& subtractingPoint);     // Must have both arguments because it is a friend
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: callingPoint's values will be decreased by subtractingPoint's values, per dimension.
+            
+            friend const Point operator+(const Point& point1, const Point& point2);
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: Returns an anonymous Point with values that are the sum of point1 
+                             and point2's values, per dimension.
+            
+            friend const Point operator-(const Point& point1, const Point& point2);
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: Returns an anonymous Point with values that are the difference of point1 
+                             and point2's values, per dimension.
+    
+            friend bool operator==(const Point&, const Point&);
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: Returns true if the points have the same values, per dimension.
+            
+            friend bool operator!=(const Point&, const Point&);
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: Returns false if the points don't have the same values, per dimension.
+            
+            friend bool operator<(const Point& left, const Point& right);
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: Returns true if left's values are less than right's per dimension.
+            
+            friend bool operator>(const Point&, const Point&);
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: Returns true if left's values are greater than right's per dimension.
+            
+            friend bool operator<=(const Point&, const Point&);
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: Returns true if left's values are less than, or equal to right's per dimension.
+            
+            friend bool operator>=(const Point&, const Point&);
+            PreCondition: Points must have equal dimensions.
+            Post-Condition: Returns true if left's values are greater than, or equal to right's per dimension.
+            
+    
+            friend std::ostream &operator<<(std::ostream&, const Point&);
+            PostCondition: Prints comma delineated list of Points values.
+            
+            
+            friend std::istream &operator>>(std::istream&, Point&);
+            CURRENTLY UNIMPLEMENTED
+            
+    
+            
+```
+
+**_Documentation of the Cluster class._**
+
+```
+
+    FILE: Cluster.h
+    CLASS PROVIDED: Cluster (a class designed to hold groups of points)
+    
+            CONSTRUCTORS for the Cluster class:
+            Cluster() : size(0), points(nullptr), destroyAllPoints(false) {};
+            Post-Condition: A new Cluster is created with size 0, nullptr for its head, 
+                             and destroyAllPoints set to false.
+            
+            Cluster(bool delAll) : size(0), points(nullptr), destroyAllPoints(delAll) {};
+            Post-Condition: A new Cluster is crated with size 0, nullptr for its head, 
+                             and destroyAllPoints set to "delAll".
+            
+    
+            BIG THREE: Overloaded Copy constructor, Assignment operator=, and destructor for the Cluster class.
+            Cluster(const Cluster &copyCluster);
+            Post-Condition: Creates a new Cluster with its own Singly-Linked-List with dynamically allocated Nodes,
+                            that has the same size and contains the same points by memory address, as copyCluster.
+            
+            Cluster &operator=(const Cluster &assigningCluster);
+            PreCondition: The Clusters must not be the same Cluster.
+            Post-Condition: The Cluster is destroyed. Then reinitialized with its own Singly-Linked-List with
+                             dynamically allocated Nodes, that has the same size and contains the same points
+                             by memory address, as assigningCluster.
+            
+            
+            ~Cluster();
+            PreCondition: The Cluster being destroyed, must not contain any Points that exist in another Cluster
+            Post-Condition: All Points and Nodes, contained in this cluster are deallocated.
+            
+    
+            SETTERS for the Cluster class: (They allow calling c1.add(c2.remove(p)));
+            void add(const PointPtr &);
+            Post-Condition: The point is stored in lexographical order in the cluster, if it is not already in the
+                             Cluster. Size is incremented
+            
+            const PointPtr &remove(const PointPtr &);
+            Post-Condition: Provided that the point exists in the cluster, it is removed from the cluster. Size
+                             is decremented.
+            
+    
+            OVERLOADED operators for the Cluster class:
+            friend std::ostream &operator<<(std::ostream&, const Cluster&);
+            Post-Condition: The cluster is printed to the console.
+            
+            friend std::istream &operator>>(std::istream&, Cluster&);
+            NOT YET IMPLEMENTED
+            
+    
+            friend bool operator==(const Cluster &left, const Cluster &right);
+            PreCondition: Points in each Cluster must have the same dimensions
+            Post-Condition: Returns TRUE if and only if, the clusters contain all the same points by memory.
+            
+            friend bool operator!=(const Cluster&, const Cluster&);
+            PreCondition: Points in each Cluster must have the same dimensions
+            Post-Condition: Returns TRUE if the Cluster are not the same size, or do not contain the same points
+                             by memory.
+            
+    
+            Cluster &operator+=(const Cluster&); // UNION
+            PreCondition: Points in each Cluster must have the same dimensions.
+            Post-Condition: The calling Cluster now represents the union of the two Clusters.
+            
+            Cluster &operator-=(const Cluster&); // (asymmetric) difference
+            PreCondition: Points in each Cluster must have the same dimensions.
+            Post-Condition: The calling Cluster now represents the asymmetric difference of the two Clusters.
+            
+    
+            Cluster &operator+=(const Point &pointToAdd); // adds a Point to the Cluster
+            PreCondition: pointToAdd must have the same dimensions as other Points in the calling Cluster.
+            Post-Condition: A new dynamically allocated Point with values equivalent to pointToAdd, is added
+                             to the calling Cluster.
+            
+            Cluster &operator-=(const Point &pointsToDelete); // removes ALL points with same value
+            PreCondition: pointsToDelete must have the same dimensions as other Points in the calling Cluster.
+            Post-Condition: ALL points contained in the calling Cluster that have values that match pointsToDelete
+                             are removed from the calling Cluster.
+            
+    
+            friend const Cluster operator+(const Cluster &right, const Cluster &left);
+            PreCondition: Each Cluster must have Points with the same number of Dimensions.
+            Post-Condition: returns a new anonymous Cluster that represents the union of right and left.
+            
+            friend const Cluster operator-(const Cluster &right, const Cluster &left);
+            PreCondition: Each Cluster must have Points with the same number of Dimensions.
+            Post-Condition: returns a new anonymous Cluster that represents the asymmetric difference of right and left.
+    
+            friend const Cluster operator+(const Cluster &left, const PointPtr &right);
+            PreCondition: right must have the same number of dimensions as the points in left.
+            Post-Condition: right(point) is added to left(Cluster).
+            
+            friend const Cluster operator-(const Cluster &left, const PointPtr &right);
+            PreCondition: right must have the same number of dimensions as the points in left.
+            Post-Condition: right(point) is removed from left(Cluster).
+
+    
+```
+
+
+
  
 ###_Files Included_
  
  * * *
  
- 1. pa1.cpp
- 2. Point.cpp
- 3. Point.h
+ 1. pa2.cpp
+ 2. Point.h
+ 3. Point.cpp
+ 4. Cluster.h
+ 5. Cluster.cpp
  
-###_Documentation_
-
-* * *
-
-**_Documentation of the Point class. (Also included in Point.h)_**
-
-```
-
-    FILE: Point.h
-    CLASS PROVIDED: Point (a class for a point on a three-dimensional plane)
-
-    CONSTRUCTORS for the Point class:
-        Point()
-            Post condition: An instance of the Point class has been created, but not initialized.
-
-        Point(double x, double y, double z)
-            Post condition: An instance of the Point class has ben created, and each of the member
-            values have been set to the values passed in.
-
-    MUTATOR MEMBER FUNCTIONS for the Point class:
-        void setX(double newX)
-            Post condition: The x coordinate is set to newX of the object that called this member function.
-
-        void setY(double newY)
-            Post condition: The y coordinate is set to newY of the object that called this member function.
-
-        void setZ(double newZ)
-            Post condition: The z coordinate is set to newZ of the object that called this member function.
-
-    CONSTANT ACCESSOR MEMBER FUNCTIONS for the Point class:
-        double getX() const
-            Post condition: Returns the value of the x coordinate of the object that called this function.
-
-        double getY() const
-            Post condition: Returns the value of the y coordinate of the object that called this function.
-
-        double getZ() const
-            Post condition: Returns the value of the z coordinate of the object that called this function.
-
-        double distanceTo(Point&) const
-            Post condition: Returns the value of the distance between the calling object and the object passed in.
-```
-
-**_Documentation of the Global computeArea() function_**
-
-```
-
-Function declaration:
-
-Takes 3 Points by reference, and computes the area of the triangle
-
-    double computeArea(Point& a, Point& b, Point& c)
-
-Function definition:
-    
-     See simple explanation above the function declaration/prototype
-        In depth explanation:
-            Computes the length of each side of the triangle, using the distanceTo formula.
-            SideA corresponds to the length between point b and c, and so on. The semiperimeter
-            is a value used in Heron's formula. The function then uses Heron's formula to
-            calculate the area of the triangle, and returns that values to the main function.
-     
-    
-    double computeArea(Point &a, Point &b, Point &c){
-        double sideC = a.distanceTo(b);
-        double sideA = b.distanceTo(c);
-        double sideB = a.distanceTo(c);
-        double semiperimeter = (sideA + sideB + sideC) / 2;
-        return sqrt(semiperimeter * (semiperimeter - sideA) * (semiperimeter - sideB) * (semiperimeter - sideC));
-    }
-    
-```
-
-
-
 ###_Compiler_ 
 
 * * *
 
 _g++_
-
-
-###_Acknowledgements_
-
-* * *
-
-<font size="-1">ACKNOWLEDGEMENT: Modelled after CS11 Lab 1 at Caltech.</font>
-
-<font size="-1">Some content Copyright (C) 2004-2010, California Institute of Technology.</font>

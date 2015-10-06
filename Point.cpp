@@ -95,7 +95,6 @@ namespace Clustering {
         Point returnPoint(*this);
         returnPoint *= factor;
         return returnPoint;
-        // IS RETURN POINT GETTING DESTRUCTED?
     }
 
     const Point Point::operator/(double factor) const {

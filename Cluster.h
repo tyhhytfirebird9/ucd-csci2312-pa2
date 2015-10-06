@@ -1,7 +1,3 @@
-//
-// Created by Alex Foreman on 9/20/15.
-//
-
 #ifndef CLUSTERING_CLUSTER_H
 #define CLUSTERING_CLUSTER_H
 
@@ -22,9 +18,12 @@ namespace Clustering {
     private:
         int size;
         LNodePtr points;
+        bool destroyAllPoints = false;
 
     public:
-        Cluster() : size(0), points(nullptr) {};
+        // Constructors
+        Cluster() : size(0), points(nullptr), destroyAllPoints(false) {};
+        Cluster(bool delAll) : size(0), points(nullptr), destroyAllPoints(delAll) {};
 
         // The Big Three: Copy constructor, Assignment operator=, destructor
         // Copy Constructor
@@ -67,7 +66,6 @@ namespace Clustering {
 
         friend const Cluster operator+(const Cluster&, const PointPtr&);
         friend const Cluster operator-(const Cluster&, const PointPtr&);
-
     };
 }
 #endif // CLUSTERING_CLUSTER_H

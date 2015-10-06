@@ -1,6 +1,3 @@
-//  FILE: Point.h
-//  CLASS PROVIDED: Point (a class for a point on a variable-dimension plane)
-
 #ifndef CLUSTERING_POINT_H
 #define CLUSTERING_POINT_H
 
@@ -14,7 +11,6 @@ namespace Clustering {
 
     public:
         // Constructors
-        //Point();                // default constructor
         Point(int);             // constructor for just dimension
         Point(int, double*);    // constructor for dimension and values
 
