@@ -2,6 +2,7 @@
 // Created by Alex Foreman on 9/20/15.
 //
 
+
 #include "Cluster.h"
 
 namespace Clustering {
@@ -34,7 +35,11 @@ namespace Clustering {
             return *this;
         }
 
-        // Maybe do this to deallocate all associated memory?
+        // DANGEROUS, ONLY CALL ON THE MASTER CLUSTER IF YOU CALL WITH +=,
+        // otherwise masterCluster loses all of its points.
+        //if (!(this->destroyAllPoints))
+            //this->~Cluster();
+
         this->~Cluster();
 
         points = nullptr;
@@ -44,7 +49,7 @@ namespace Clustering {
 
         points = leftSide;
         LNodePtr rightSide = assigningCluster.points;
-        //rightSide = rightSide->next;
+
 
         while (rightSide->next != nullptr) {
             leftSide->p = rightSide->p;
@@ -58,18 +63,15 @@ namespace Clustering {
         return *this;
     }
 
-    // DESTRUCTOR works as it should EXCEPT when used on a Cluster that contains a Point that
-    // exists in another cluster, gives SEGFAULT. Not sure without smart pointers to work around
-    // this. Works perfectly fine IFF clusters do not share points.
     Cluster::~Cluster() {
         LNodePtr nodeToDelete = points;
         LNodePtr cursor = points;
         while (cursor != nullptr) {
             cursor = cursor->next;
-            // MEMORY LEAK I KNOW, BUT CANNOT DO THIS WITHOUT GETTING SEGFAULTS FOR NOW
-            // THIS IS BECAUSE ALTHOUGH WE WILL NOT HAVE CLUSTERS THAT HAVE THE SAME POINTS
-            // FOR TESTING I NEED TO BE ABLE TO. THEREFORE I NEED TO IMPLEMENT SMART POINTERS
-            //delete nodeToDelete->p;
+            //if (destroyAllPoints){
+            //    delete nodeToDelete->p;
+            //}
+            delete nodeToDelete->p;
             delete nodeToDelete;
             nodeToDelete = cursor;
             size--;
